@@ -1,0 +1,11 @@
+---
+  - name: Preparing base OS
+    hosts: localhost
+    connection: local 
+    tasks:
+      - name: Include base tasks
+        include_role: 
+          name: base
+      - name: Include PKI tasks
+        include_role:
+          name: ca

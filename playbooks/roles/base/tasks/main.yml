@@ -1,0 +1,50 @@
+---
+- name: Run OS Upgrade
+  apt:
+    name: "*"
+    state: latest
+    update_cache: true
+
+- name: Install base packages
+  apt:
+    pkg:
+      - ca-certificates 
+      - curl 
+      - gnupg 
+      - lsb-release 
+      - git
+
+- name: Add Docker APT Key
+  apt_key:
+    url: https://download.docker.com/linux/debian/gpg
+    state: present
+    keyring: /etc/apt/trusted.gpg.d/docker.gpg
+
+- name: Add Docker Repository
+  apt_repository:
+    repo: "deb https://download.docker.com/linux/debian bullseye stable" 
+    state: present
+    update_cache: true
+
+- name: Install Docker
+  apt:
+    pkg:
+      - docker-ce 
+      - docker-ce-cli 
+      - containerd.io
+
+- name: Enable and Start Docker
+  systemd:
+    state: started
+    enabled: true
+    name: docker
+
+- name: Install Docker Pip Library
+  pip:
+    name: docker
+
+- name: Pull EKS Distro Images
+  docker_image:
+    name: "{{ item }}"
+    source: pull
+  loop: "{{ eksdistro }}"
