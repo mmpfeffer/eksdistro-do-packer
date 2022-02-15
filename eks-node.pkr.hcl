@@ -27,7 +27,9 @@ build {
       playbook_file   = "./playbooks/playbook.yml"
       group_vars      = "./playbooks/group_vars"
       role_paths      = [
-        "./playbooks/roles/base"
+        "./playbooks/roles/base",
+        "./playbooks/roles/ca"
+
       ]
     }
 }
