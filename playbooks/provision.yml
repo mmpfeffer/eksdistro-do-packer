@@ -6,3 +6,6 @@
       - name: Include ETCD tasks
         include_role:
           name: etcd
+      - name: Include Kube API Server Tasks
+        include_role:
+          name: kube-apiserver 
