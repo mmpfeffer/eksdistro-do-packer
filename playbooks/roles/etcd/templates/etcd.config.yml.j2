@@ -1,0 +1,46 @@
+# This is the configuration file for the etcd server.
+
+# Human-readable name for this member.
+name: "{{ ansible_host }}"
+
+# Path to the data directory.
+data-dir: /data
+
+# List of comma separated URLs to listen on for peer traffic.
+listen-peer-urls: https://0.0.0.0:2380
+
+# List of comma separated URLs to listen on for client traffic.
+listen-client-urls: https://0.0.0.0:2379
+
+# List of this member's peer URLs to advertise to the rest of the cluster.
+# The URLs needed to be a comma-separated list.
+initial-advertise-peer-urls: https://localhost:2380,https://{{ ansible_eth1.ipv4.address }}:2380
+
+# List of this member's client URLs to advertise to the public.
+# The URLs needed to be a comma-separated list.
+advertise-client-urls: https://localhost:2379,https://{{ ansible_eth1.ipv4.address }}:2379
+
+# Discovery URL used to bootstrap the cluster.
+discovery:
+
+# DNS domain used to bootstrap initial cluster.
+discovery-srv:
+
+initial-cluster-token: 'eksdistro-cluster'
+
+# Initial cluster state ('new' or 'existing').
+initial-cluster-state: 'new'
+
+client-transport-security:
+  cert-file: /certs/kube-etcd.crt
+  key-file:  /certs/kube-etcd.key
+  client-cert-auth: true
+  trusted-ca-file: /certs/ca.crt
+  auto-tls: false
+
+peer-transport-security:
+  cert-file: /certs/kube-etcd-peer.crt
+  key-file: /certs/kube-etcd-peer.key
+  client-cert-auth: true
+  trusted-ca-file: /certs/ca.crt
+  auto-tls: false

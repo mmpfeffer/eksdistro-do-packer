@@ -29,7 +29,11 @@ build {
       role_paths      = [
         "./playbooks/roles/base",
         "./playbooks/roles/ca"
-
       ]
+    }
+
+    provisioner "file" {
+      source = "./playbooks/"
+      destination = "/root"
     }
 }

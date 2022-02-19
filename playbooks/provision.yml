@@ -1,0 +1,8 @@
+---
+  - name: Provision EKS Master
+    hosts: localhost
+    connection: local 
+    tasks:
+      - name: Include ETCD tasks
+        include_role:
+          name: etcd

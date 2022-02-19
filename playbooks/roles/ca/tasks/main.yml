@@ -26,8 +26,8 @@
     basic_constraints:
       - "CA:TRUE"
     key_usage:
-      - digitalSignature
-      - keyAgreement
+      - keyCertSign
+      - cRLSign
     extended_key_usage:
       - clientAuth
       - serverAuth
