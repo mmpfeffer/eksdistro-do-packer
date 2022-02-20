@@ -9,3 +9,6 @@
       - name: Include Kube API Server Tasks
         include_role:
           name: kube-apiserver 
+      - name: Include Kube Controller Tasks
+        include_role:
+          name: kube-controller-manager

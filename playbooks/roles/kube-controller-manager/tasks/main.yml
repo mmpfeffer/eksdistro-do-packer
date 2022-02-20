@@ -1,0 +1,46 @@
+---
+- name: Create private keys for EKS Distro Controller Manager
+  openssl_privatekey:
+    path: "/etc/kubernetes/pki/kube-controller-manager.key"
+
+- name: Create CSR for EKS Distro Controller Manager
+  openssl_csr:
+    path: "/etc/kubernetes/pki/kube-controller-manager.csr"
+    privatekey_path: "/etc/kubernetes/pki/kube-controller-manager.key"
+    basic_constraints_critical: true
+    basic_constraints:
+      - "CA:FALSE"
+    subject_alt_name: []
+    key_usage: 
+      - digitalSignature
+      - keyEncipherment
+    extended_key_usage:
+      - clientAuth
+    organization_name: ""
+    common_name: "system:kube-controller-manager"
+
+- name: Generate EKS Distro Controller Manager Certificate
+  community.crypto.x509_certificate:
+    path: "/etc/kubernetes/pki/kube-controller-manager.crt"
+    csr_path: "/etc/kubernetes/pki/kube-controller-manager.csr"
+    ownca_path: /etc/kubernetes/pki/ca.crt
+    ownca_privatekey_path: /etc/kubernetes/pki/ca.key
+    provider: ownca
+
+- name: Create Kube Controller Bundle
+  shell: cat /etc/kubernetes/pki/kube-apiserver.crt /etc/kubernetes/pki/ca.crt > /etc/kubernetes/pki/kube-apiserver.bundle
+
+- name: Create Kube Controller Container
+  docker_container:
+    name: kube-controller-manager
+    image: "public.ecr.aws/eks-distro/kubernetes/kube-controller-manager:v1.21.5-eks-1-21-8"
+    restart: yes
+    restart_policy: always
+    state: started
+    volumes:
+      - /etc/kubernetes/pki:/certs
+      - /etc/kubernetes/controller-manager.conf:/controller-manager.conf
+    entrypoint: /usr/local/bin/kube-controller-manager
+    command: --kubeconfig /controller-manager.conf --client-ca-file /certs/ca.crt --authentication-kubeconfig /controller-manager.conf --tls-cert-file /certs/kube-controller-manager.bundle --tls-private-key-file /certs/kube-controller-manager.key
+    ports:
+      - "10252:10252"

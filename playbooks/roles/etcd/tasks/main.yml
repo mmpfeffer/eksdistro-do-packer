@@ -74,6 +74,7 @@
     name: etcd
     image: "public.ecr.aws/eks-distro/etcd-io/etcd:v3.4.16-eks-1-21-8"
     restart: yes
+    restart_policy: always
     state: started
     volumes:
       - /etc/kubernetes/pki:/certs
