@@ -1,0 +1,10 @@
+[Unit]
+Description=Kubelet Service
+Requires=network.target
+After=syslog.target network.target
+[Service]
+Type=forking
+ExecStart=/usr/bin/kubelet --config {{ conf_directory }}/kubelet-config.yml --kubeconfig  {{ conf_directory }}/kubelet.conf
+User=root
+[Install]
+WantedBy=multi-user.target

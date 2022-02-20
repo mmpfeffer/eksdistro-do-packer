@@ -3,9 +3,6 @@
     include_role:
       name: ca
       tasks_from: create-cert
-    loop: "{{ certs }}"
-    loop_control:
-      loop_var: cert
 
   - name: Create Certificate Bundles
     shell: "cat {{ item.cert_file }} {{ item.ca_file }} > {{ item.target }}"
@@ -19,6 +16,9 @@
       - cert_file: "{{ cert_directory }}/kube-scheduler.crt"
         ca_file: "{{ cert_directory }}/ca.crt"
         target: "{{ cert_directory }}/kube-scheduler.bundle"
+      - cert_file: "{{ cert_directory }}/kubelet.crt"
+        ca_file: "{{ cert_directory }}/ca.crt"
+        target: "{{ cert_directory }}/kubelet.bundle"
 
   - name: Deploy ETCD
     include_tasks: etcd.yml
@@ -31,3 +31,25 @@
 
   - name: Deploy Scheduler
     include_tasks: scheduler.yml
+
+  - name: Deploy Kubelet
+    include_role:
+      name: kubelet
+  
+  - name: Create .kube directory
+    file:
+      path: /root/.kube
+      state: directory
+      mode: '0755'
+
+  - name: Generate Admin Kube Config
+    vars:
+      component: "admin"
+      conf_file: "/root/.kube/config"
+      credential: default-admin
+      ca_cert_file: "{{ cert_directory }}/ca.crt"
+      component_key_file: "{{ cert_directory }}/admin.key"
+      component_cert_file: "{{ cert_directory }}/admin.crt"
+      apiserver_host: "{{ ansible_eth1.ipv4.address }}"
+    include_role:
+      name: kubeconfig

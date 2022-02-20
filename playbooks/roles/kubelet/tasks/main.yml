@@ -1,0 +1,36 @@
+---
+- name: Generate Kube Scheduler Config
+  vars:
+    component: "kubelet"
+    conf_file: "{{ conf_directory }}/kubelet.conf"
+    credential: default-auth
+    ca_cert_file: "{{ cert_directory }}/ca.crt"
+    component_key_file: "{{ cert_directory }}/kubelet.key"
+    component_cert_file: "{{ cert_directory }}/kubelet.crt"
+    apiserver_host: "{{ ansible_eth1.ipv4.address }}"
+  include_role:
+    name: kubeconfig
+
+- name: Generate Kubelet Config
+  template:
+    src: kubelet-config.yml.j2
+    dest: /etc/kubernetes/kubelet-config.yml
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Generate Kubelet Service File
+  template:
+    src: kubelet.service.j2
+    dest: /etc/systemd/system/kubelet.service
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Start the kubelet
+  ansible.builtin.systemd:
+    state: started
+    name: kubelet
+    daemon_reload: yes
+    enabled: yes
+    no_block: yes

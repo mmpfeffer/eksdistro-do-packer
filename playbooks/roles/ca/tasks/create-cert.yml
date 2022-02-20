@@ -3,6 +3,8 @@
   openssl_privatekey:
     path: "{{ cert.key_file }}"
   loop: "{{ certs }}"
+  loop_control:
+    loop_var: cert
 
 - name: "Create CSR for certificate"
   openssl_csr:
@@ -16,6 +18,9 @@
     extended_key_usage: "{{ cert.ext_usages | default([]) }}"
     organization_name: "{{ cert.organization_name | default('') }}"
     common_name: "{{ cert.common_name | default('') }}"
+  loop: "{{ certs }}"
+  loop_control:
+    loop_var: cert
 
 - name: "Generate Certificate"
   community.crypto.x509_certificate:
@@ -24,3 +29,6 @@
     ownca_path: "{{ cert.ca_file }}"
     ownca_privatekey_path: "{{ cert.ca_key_file }}"
     provider: ownca
+  loop: "{{ certs }}"
+  loop_control:
+    loop_var: cert

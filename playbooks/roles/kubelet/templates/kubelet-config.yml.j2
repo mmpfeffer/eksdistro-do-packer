@@ -1,0 +1,12 @@
+apiVersion: "kubelet.config.k8s.io/v1beta1"
+kind: KubeletConfiguration
+address: "{{ ansible_eth1.ipv4.address }}"
+port: 20250
+cgroupDriver: "systemd"
+tlsPrivateKeyFile: "{{ cert_directory }}/kubelet.key"
+tlsCertFile: "{{ cert_directory }}/kubelet.crt"
+podCidr: "{{ pod_network }}"
+hostnameOverride: "{{ node_name }}"
+authentication:
+    x509:
+        clientCAFile: "{{ cert_directory }}/kubelet.bundle"
