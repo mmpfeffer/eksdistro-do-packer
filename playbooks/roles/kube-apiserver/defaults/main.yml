@@ -1,1 +1,27 @@
 pod_network: "172.16.0.0/24"
+certs:
+  - key_file: "{{ cert_directory }}/kube-apiserver-etcd-client.key"
+    csr_file: "{{ cert_directory }}/kube-apiserver-etcd-client.csr"
+    cert_file: "{{ cert_directory }}/kube-apiserver-etcd-client.crt"
+    ca_file:  "{{ cert_directory }}/ca.crt"
+    ca_key_file:  "{{ cert_directory }}/ca.key"
+    organization_name: "system:masters"
+    ext_usages:
+      - clientAuth
+    usages:
+      - digitalSignature
+      - keyEncipherment
+  - key_file: "{{ cert_directory }}/kube-apiserver.key"
+    csr_file: "{{ cert_directory }}/kube-apiserver.csr"
+    cert_file: "{{ cert_directory }}/kube-apiserver.crt"
+    ca_file:  "{{ cert_directory }}/ca.crt"
+    ca_key_file:  "{{ cert_directory }}/ca.key"
+    alt_names:
+      - "DNS:localhost"
+      - "IP:127.0.0.1"
+      - "IP:{{ ansible_eth1.ipv4.address }}"
+    ext_usages:
+      - serverAuth
+    usages:
+      - digitalSignature
+      - keyEncipherment

@@ -2,6 +2,8 @@ eksdistro:
   binaries:
     - name: kubelet
       url: "https://distro.eks.amazonaws.com/kubernetes-1-21/releases/8/artifacts/kubernetes/v1.21.5/bin/linux/amd64/kubelet"
+    - name: kubectl
+      url: "https://dl.k8s.io/release/v1.21.8/bin/linux/amd64/kubectl"
   images:
     - "public.ecr.aws/eks-distro/kubernetes-sigs/aws-iam-authenticator:v0.5.3-eks-1-21-8"
     - "public.ecr.aws/eks-distro/coredns/coredns:v1.8.4-eks-1-21-8"

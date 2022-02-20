@@ -1,41 +1,4 @@
 ---
-- name: Set certificate names for Kubernetes
-  set_fact:
-    certs:
-      - name: kube-apiserver-etcd-client
-        alt_names: []
-        organization_name: "system:masters"
-        ext_usages:
-          - clientAuth
-        usages:
-          - digitalSignature
-          - keyEncipherment
-      - name: kube-apiserver-kubelet-client
-        alt_names: []
-        organization_name: "system:masters"
-        ext_usages:
-          - clientAuth
-        usages:
-          - digitalSignature
-          - keyEncipherment
-      - name: kube-apiserver
-        organization_name: ""
-        alt_names:
-          - "DNS:localhost"
-          - "IP:127.0.0.1"
-          - "IP:{{ ansible_eth1.ipv4.address }}"
-        ext_usages:
-          - serverAuth
-        usages:
-          - digitalSignature
-          - keyEncipherment
-        
-
-- name: Create private keys for EKS Distro API Server
-  openssl_privatekey:
-    path: "/etc/kubernetes/pki/{{ item.name }}.key"
-  loop: "{{ certs }}"
-
 - name: Create SA Signing Key for EKS Distro API Server
   openssl_privatekey:
     path: "/etc/kubernetes/pki/sa.key"
@@ -45,28 +8,13 @@
     path: /etc/kubernetes/pki/sa.pub
     privatekey_path: /etc/kubernetes/pki/sa.key
 
-- name: Create CSR for EKS Distro API server
-  openssl_csr:
-    path: "/etc/kubernetes/pki/{{ item.name }}.csr"
-    privatekey_path: "/etc/kubernetes/pki/{{ item.name }}.key"
-    basic_constraints_critical: true
-    basic_constraints:
-      - "CA:FALSE"
-    subject_alt_name: "{{ item.alt_names }}"
-    key_usage: "{{ item.usages }}"
-    extended_key_usage: "{{ item.ext_usages }}"
-    organization_name: "{{ item.organization_name }}"
+- name: "Generate EKS Distro API Server Certificates"
+  include_role:
+    name: ca
+    tasks_from: create-cert
   loop: "{{ certs }}"
-
-
-- name: Generate EKS Distro API Server Certificates
-  community.crypto.x509_certificate:
-    path: "/etc/kubernetes/pki/{{ item.name }}.crt"
-    csr_path: "/etc/kubernetes/pki/{{ item.name }}.csr"
-    ownca_path: /etc/kubernetes/pki/ca.crt
-    ownca_privatekey_path: /etc/kubernetes/pki/ca.key
-    provider: ownca
-  loop: "{{ certs }}"
+  loop_control:
+    loop_var: cert
 
 - name: Create EKS Distro API Server Bundle
   shell: cat /etc/kubernetes/pki/kube-apiserver.crt /etc/kubernetes/pki/ca.crt > /etc/kubernetes/pki/kube-apiserver.bundle

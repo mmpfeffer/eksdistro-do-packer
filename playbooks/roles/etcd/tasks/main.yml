@@ -1,13 +1,13 @@
 ---
-- name: "[etcd] Generate ETCD Certificates"
+- name: "Generate ETCD Certificates"
   include_role:
     name: ca
     tasks_from: create-cert
   loop: "{{ certs }}"
   loop_control:
-    index_var: cert
+    loop_var: cert
 
-- name: "[etcd] Create data directories"
+- name: "Create data directories"
   file:
     path: /var/lib/etcd
     owner: root
@@ -15,7 +15,7 @@
     mode: "0755"
     state: directory
 
-- name: "[etcd] Generate ETCD Config file for container"
+- name: "Generate ETCD Config file for container"
   template:
     src: etcd.config.yml.j2
     dest: /var/lib/etcd/etcd.config.yml
@@ -23,7 +23,7 @@
     group: root
     mode: "0644"
 
-- name: "[etcd] Create ETCD Container"
+- name: "Create ETCD Container"
   docker_container:
     name: etcd
     image: "public.ecr.aws/eks-distro/etcd-io/etcd:v3.4.16-eks-1-21-8"

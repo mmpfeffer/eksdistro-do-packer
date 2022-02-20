@@ -1,5 +1,5 @@
 ---
-- name: "[create-ca] Create PKI Directory"
+- name: "Create PKI Directory"
   file:
     path: "{{ cert_directory }}"
     owner: root
@@ -7,11 +7,11 @@
     mode: "0755"
     state: directory
   
-- name: "[create-ca] Create private key for CA"
+- name: "Create private key for CA"
   openssl_privatekey:
     path: "{{ cert_directory }}/{{ ca.key_file }}"
 
-- name: "[create-ca] Create CSR for CA"
+- name: "Create CSR for CA"
   openssl_csr:
     path: "{{ cert_directory }}/{{ ca.csr_file }}"
     privatekey_path: "{{ cert_directory }}/{{ ca.key_file }}"
@@ -29,7 +29,7 @@
       - clientAuth
       - serverAuth
 
-- name: "[create-ca] Generate CA Certificate"
+- name: "Generate CA Certificate"
   community.crypto.x509_certificate:
     path: "{{ cert_directory }}/{{ ca.cert_file }}"
     privatekey_path: "{{ cert_directory }}/{{ ca.key_file }}"

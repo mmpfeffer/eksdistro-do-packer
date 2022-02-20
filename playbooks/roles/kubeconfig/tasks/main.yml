@@ -1,0 +1,7 @@
+---
+- name: Generate Kubeconfig for "{{ component }}"
+  shell: |
+    KUBECONFIG={{ conf_file }} kubectl config set-cluster default-cluster --server=https://{{ apiserver_host }}:6443 --certificate-authority {{ ca_cert_file }} --embed-certs
+    KUBECONFIG={{ conf_file }} kubectl config set-credentials {{ credential }} --client-key {{ component_key_file }} --client-certificate {{ component_cert_file }} --embed-certs
+    KUBECONFIG={{ conf_file }} kubectl config set-context default-system --cluster default-cluster --user {{ credential }}
+    KUBECONFIG={{ conf_file }} kubectl config use-context default-system
