@@ -12,3 +12,9 @@
       - name: Include Kube Controller Tasks
         include_role:
           name: kube-controller-manager
+      - name: Include Kube Scheduler Tasks
+        include_role:
+          name: kube-scheduler
+      - name: Include Kube Proxy Tasks
+        include_role:
+          name: kube-proxy

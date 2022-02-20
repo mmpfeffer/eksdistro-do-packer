@@ -1,0 +1,39 @@
+---
+- name: "Generate EKS Distro Kube Proxy Certificates"
+  include_role:
+    name: ca
+    tasks_from: create-cert
+  loop: "{{ certs }}"
+  loop_control:
+    loop_var: cert
+
+- name: Create Kube Proxy Bundle
+  shell: cat /etc/kubernetes/pki/kube-proxy.crt /etc/kubernetes/pki/ca.crt > /etc/kubernetes/pki/kube-proxy.bundle
+
+- name: Generate Kube Proxy Config
+  vars:
+    component: "kube-proxy"
+    conf_file: "/etc/kubernetes/proxy.conf"
+    credential: default-proxy
+    ca_cert_file: "{{ item.ca_file }}"
+    component_key_file: "{{ item.key_file }}"
+    component_cert_file: "{{ item.cert_file }}"
+    apiserver_host: "{{ ansible_eth1.ipv4.address }}"
+  include_role:
+    name: kubeconfig
+  loop: "{{ certs }}"
+
+- name: Create Kube Proxy Container
+  docker_container:
+    name: kube-proxy
+    image: "public.ecr.aws/eks-distro/kubernetes/kube-proxy:v1.21.5-eks-1-21-8"
+    restart: yes
+    restart_policy: always
+    privileged: yes
+    state: started
+    volumes:
+      - /etc/kubernetes/proxy.conf:/proxy.conf
+    entrypoint: /usr/local/bin/kube-proxy
+    command: "--kubeconfig /proxy.conf --bind-address {{ ansible_eth1.ipv4.address }} --cluster-cidr {{ pod_network }} --conntrack-max-per-core=0"
+    ports:
+      - "10256:10256"

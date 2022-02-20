@@ -1,5 +1,5 @@
 ---
-- name: "Generate EKS Distro API Server Certificates"
+- name: "Generate EKS Distro Kube Controller Certificates"
   include_role:
     name: ca
     tasks_from: create-cert

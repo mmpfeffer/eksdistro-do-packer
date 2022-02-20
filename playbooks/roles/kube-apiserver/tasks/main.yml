@@ -29,6 +29,6 @@
     volumes:
       - /etc/kubernetes/pki:/certs
     entrypoint: /usr/local/bin/kube-apiserver
-    command: --tls-cert-file /certs/kube-apiserver.bundle --tls-private-key-file /certs/kube-apiserver.key --etcd-cafile /certs/ca.crt --etcd-certfile /certs/kube-apiserver-etcd-client.crt --etcd-keyfile /certs/kube-apiserver-etcd-client.key --service-account-signing-key-file /certs/sa.key --service-account-key-file /certs/sa.pub --service-account-issuer kubernetes-ca  --service-cluster-ip-range "{{ pod_network }}" --etcd-servers "https://{{ ansible_eth1.ipv4.address }}:2379" --client-ca-file /certs/ca.crt
+    command: --allow-privileged="true" --tls-cert-file /certs/kube-apiserver.bundle --tls-private-key-file /certs/kube-apiserver.key --etcd-cafile /certs/ca.crt --etcd-certfile /certs/kube-apiserver-etcd-client.crt --etcd-keyfile /certs/kube-apiserver-etcd-client.key --service-account-signing-key-file /certs/sa.key --service-account-key-file /certs/sa.pub --service-account-issuer kubernetes-ca  --service-cluster-ip-range "{{ pod_network }}" --etcd-servers "https://{{ ansible_eth1.ipv4.address }}:2379" --client-ca-file /certs/ca.crt
     ports:
       - "6443:6443"

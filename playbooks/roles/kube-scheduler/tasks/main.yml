@@ -1,0 +1,39 @@
+---
+- name: "Generate EKS Distro Kube Scheduler Certificates"
+  include_role:
+    name: ca
+    tasks_from: create-cert
+  loop: "{{ certs }}"
+  loop_control:
+    loop_var: cert
+
+- name: Create Kube Scheduler Bundle
+  shell: cat /etc/kubernetes/pki/kube-scheduler.crt /etc/kubernetes/pki/ca.crt > /etc/kubernetes/pki/kube-scheduler.bundle
+
+- name: Generate Kube Scheduler Config
+  vars:
+    component: "scheduler"
+    conf_file: "/etc/kubernetes/scheduler.conf"
+    credential: default-scheduler
+    ca_cert_file: "{{ item.ca_file }}"
+    component_key_file: "{{ item.key_file }}"
+    component_cert_file: "{{ item.cert_file }}"
+    apiserver_host: "{{ ansible_eth1.ipv4.address }}"
+  include_role:
+    name: kubeconfig
+  loop: "{{ certs }}"
+
+- name: Create Kube Scheduler Container
+  docker_container:
+    name: kube-scheduler
+    image: "public.ecr.aws/eks-distro/kubernetes/kube-scheduler:v1.21.5-eks-1-21-8"
+    restart: yes
+    restart_policy: always
+    state: started
+    volumes:
+      - /etc/kubernetes/pki:/certs
+      - /etc/kubernetes/scheduler.conf:/scheduler.conf
+    entrypoint: /usr/local/bin/kube-scheduler
+    command: --kubeconfig /scheduler.conf --client-ca-file /certs/ca.crt --authentication-kubeconfig /scheduler.conf --tls-cert-file /certs/kube-scheduler.bundle --tls-private-key-file /certs/kube-scheduler.key
+    ports:
+      - "10251:10251"

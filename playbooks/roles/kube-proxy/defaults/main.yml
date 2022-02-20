@@ -1,0 +1,12 @@
+pod_network: "172.16.0.0/24"
+certs:
+  - key_file: "{{ cert_directory }}/kube-proxy.key"
+    csr_file: "{{ cert_directory }}/kube-proxy.csr"
+    cert_file: "{{ cert_directory }}/kube-proxy.crt"
+    ca_file:  "{{ cert_directory }}/ca.crt"
+    ca_key_file:  "{{ cert_directory }}/ca.key"
+    ext_usages:
+      - clientAuth
+    usages:
+      - digitalSignature
+      - keyEncipherment 
