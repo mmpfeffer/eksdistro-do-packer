@@ -1,12 +1,4 @@
 ---
-- name: "Generate ETCD Certificates"
-  include_role:
-    name: ca
-    tasks_from: create-cert
-  loop: "{{ certs }}"
-  loop_control:
-    loop_var: cert
-
 - name: "Create data directories"
   file:
     path: /var/lib/etcd

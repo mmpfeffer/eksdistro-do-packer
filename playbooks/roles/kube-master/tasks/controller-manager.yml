@@ -1,27 +1,15 @@
 ---
-- name: "Generate EKS Distro Kube Controller Certificates"
-  include_role:
-    name: ca
-    tasks_from: create-cert
-  loop: "{{ certs }}"
-  loop_control:
-    loop_var: cert
-
-- name: Create Kube Controller Bundle
-  shell: cat /etc/kubernetes/pki/kube-controller-manager.crt /etc/kubernetes/pki/ca.crt > /etc/kubernetes/pki/kube-controller-manager.bundle
-
 - name: Generate Kube Controller Config
   vars:
     component: "controller-manager"
-    conf_file: "/etc/kubernetes/controller-manager.conf"
+    conf_file: "{{ conf_directory }}/controller-manager.conf"
     credential: default-controller-manager
-    ca_cert_file: "{{ item.ca_file }}"
-    component_key_file: "{{ item.key_file }}"
-    component_cert_file: "{{ item.cert_file }}"
+    ca_cert_file: "{{ cert_directory }}/ca.crt"
+    component_key_file: "{{ cert_directory }}/kube-controller-manager.key"
+    component_cert_file: "{{ cert_directory }}/kube-controller-manager.crt"
     apiserver_host: "{{ ansible_eth1.ipv4.address }}"
   include_role:
     name: kubeconfig
-  loop: "{{ certs }}"
 
 - name: Create Kube Controller Container
   docker_container:
@@ -31,8 +19,8 @@
     restart_policy: always
     state: started
     volumes:
-      - /etc/kubernetes/pki:/certs
-      - /etc/kubernetes/controller-manager.conf:/controller-manager.conf
+      - "{{ cert_directory }}:/certs"
+      - "{{ conf_directory }}/controller-manager.conf:/controller-manager.conf"
     entrypoint: /usr/local/bin/kube-controller-manager
     command: --kubeconfig /controller-manager.conf --client-ca-file /certs/ca.crt --authentication-kubeconfig /controller-manager.conf --tls-cert-file /certs/kube-controller-manager.bundle --tls-private-key-file /certs/kube-controller-manager.key
     ports:

@@ -8,17 +8,6 @@
     path: /etc/kubernetes/pki/sa.pub
     privatekey_path: /etc/kubernetes/pki/sa.key
 
-- name: "Generate EKS Distro API Server Certificates"
-  include_role:
-    name: ca
-    tasks_from: create-cert
-  loop: "{{ certs }}"
-  loop_control:
-    loop_var: cert
-
-- name: Create EKS Distro API Server Bundle
-  shell: cat /etc/kubernetes/pki/kube-apiserver.crt /etc/kubernetes/pki/ca.crt > /etc/kubernetes/pki/kube-apiserver.bundle
-
 - name: Create API Server Container
   docker_container:
     name: kube-apiserver

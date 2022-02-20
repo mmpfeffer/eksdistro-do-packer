@@ -1,4 +1,5 @@
-cert_directory: /etc/kubernetes/pki 
+cert_directory: /etc/kubernetes/pki
+conf_directory: /etc/kubernetes
 ca:
   key_file: ca.key
   csr_file: ca.csr
