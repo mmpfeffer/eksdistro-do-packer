@@ -1,11 +1,12 @@
 ---
-  - name: Preparing base OS
+  - name: Preparing EKS Distro Node
     hosts: localhost
     connection: local 
     tasks:
-      - name: Include base tasks
+      - name: Install packages
         include_role: 
           name: base
-      - name: Include PKI tasks
+      - name: Create Certificate Authority
         include_role:
           name: ca
+          tasks_from: create-ca

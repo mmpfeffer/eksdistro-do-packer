@@ -1,0 +1,24 @@
+---
+- name: "[create-cert] Create private keys for certificate"
+  openssl_privatekey:
+    path: "{{ cert.key_file }}"
+  loop: "{{ certs }}"
+
+- name: "[create-cert] Create CSR for certificate"
+  openssl_csr:
+    path: "{{ cert.csr_file }}"
+    privatekey_path: "{{ cert.key_file }}"
+    basic_constraints_critical: true
+    basic_constraints:
+      - "CA:FALSE"
+    subject_alt_name: "{{ cert.alt_names }}"
+    key_usage: "{{ cert.usages }}"
+    extended_key_usage: "{{ cert.ext_usages }}"
+
+- name: "[create-cert] Generate Certificate"
+  community.crypto.x509_certificate:
+    path: "{{ cert.cert_file }}"
+    csr_path: "{{ cert.csr_file }}"
+    ownca_path: "{{ cert.ca_file }}"
+    ownca_privatekey_path: "{{ cert.ca_key_file }}"
+    provider: ownca

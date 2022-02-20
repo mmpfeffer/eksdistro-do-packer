@@ -6,9 +6,9 @@
       - name: Include ETCD tasks
         include_role:
           name: etcd
-      - name: Include Kube API Server Tasks
-        include_role:
-          name: kube-apiserver 
-      - name: Include Kube Controller Tasks
-        include_role:
-          name: kube-controller-manager
+      # - name: Include Kube API Server Tasks
+      #   include_role:
+      #     name: kube-apiserver 
+      # - name: Include Kube Controller Tasks
+      #   include_role:
+      #     name: kube-controller-manager

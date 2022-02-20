@@ -1,1 +1,30 @@
 node_name: eksdistro
+certs:
+  - key_file: "{{ cert_directory }}/kube-etcd.key"
+    csr_file: "{{ cert_directory }}/kube-etcd.csr"
+    cert_file: "{{ cert_directory }}/kube-etcd.crt"
+    alt_names: 
+      - "DNS:localhost"
+      - "IP:127.0.0.1"
+      - "IP:{{ ansible_eth1.ipv4.address }}"
+    ext_usages:
+      - clientAuth
+      - serverAuth
+    usages:
+      - digitalSignature
+      - keyEncipherment
+    ca_file: "{{ ca_file }}"
+    ca_key_file: "{{ ca_key_file }}"
+  - key_file: "{{ cert_directory }}/kube-etcd-peer.key"
+    csr_file: "{{ cert_directory }}/kube-etcd-peer.csr"
+    cert_file: "{{ cert_directory }}/kube-etcd-peer.crt"
+    alt_names:
+      - "DNS:localhost"
+      - "IP:127.0.0.1"
+      - "IP:{{ ansible_eth1.ipv4.address }}"
+    ext_usages:
+      - clientAuth
+      - serverAuth
+    usages:
+      - digitalSignature
+      - keyEncipherment

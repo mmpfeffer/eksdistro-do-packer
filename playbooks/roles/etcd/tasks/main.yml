@@ -1,59 +1,13 @@
 ---
-- name: Set certificate names for Kubernetes
-  set_fact:
-    certs:
-      - name: kube-etcd
-        alt_names:
-          - "DNS:localhost"
-          - "IP:127.0.0.1"
-          - "IP:{{ ansible_eth1.ipv4.address }}"
-        ext_usages:
-          - clientAuth
-          - serverAuth
-        usages:
-          - digitalSignature
-          - keyEncipherment
-      - name: kube-etcd-peer
-        alt_names:
-          - "DNS:localhost"
-          - "IP:127.0.0.1"
-          - "IP:{{ ansible_eth1.ipv4.address }}"
-        ext_usages:
-          - clientAuth
-          - serverAuth
-        usages:
-          - digitalSignature
-          - keyEncipherment
-        
-
-- name: Create private keys for EKS Distro ETCD
-  openssl_privatekey:
-    path: "/etc/kubernetes/pki/{{ item.name }}.key"
+- name: "[etcd] Generate ETCD Certificates"
+  include_role:
+    name: ca
+    tasks_from: create-cert
   loop: "{{ certs }}"
+  loop_control:
+    index_var: cert
 
-- name: Create CSR for EKS Distro CA
-  openssl_csr:
-    path: "/etc/kubernetes/pki/{{ item.name }}.csr"
-    privatekey_path: "/etc/kubernetes/pki/{{ item.name }}.key"
-    basic_constraints_critical: true
-    basic_constraints:
-      - "CA:FALSE"
-    subject_alt_name: "{{ item.alt_names }}"
-    key_usage: "{{ item.usages }}"
-    extended_key_usage: "{{ item.ext_usages }}"
-  loop: "{{ certs }}"
-
-
-- name: Generate EKS Distro ETCD Certificate
-  community.crypto.x509_certificate:
-    path: "/etc/kubernetes/pki/{{ item.name }}.crt"
-    csr_path: "/etc/kubernetes/pki/{{ item.name }}.csr"
-    ownca_path: /etc/kubernetes/pki/ca.crt
-    ownca_privatekey_path: /etc/kubernetes/pki/ca.key
-    provider: ownca
-  loop: "{{ certs }}"
-
-- name: Create data directories
+- name: "[etcd] Create data directories"
   file:
     path: /var/lib/etcd
     owner: root
@@ -61,7 +15,7 @@
     mode: "0755"
     state: directory
 
-- name: Generate ETCD Config file for container
+- name: "[etcd] Generate ETCD Config file for container"
   template:
     src: etcd.config.yml.j2
     dest: /var/lib/etcd/etcd.config.yml
@@ -69,7 +23,7 @@
     group: root
     mode: "0644"
 
-- name: Create ETCD Container
+- name: "[etcd] Create ETCD Container"
   docker_container:
     name: etcd
     image: "public.ecr.aws/eks-distro/etcd-io/etcd:v3.4.16-eks-1-21-8"

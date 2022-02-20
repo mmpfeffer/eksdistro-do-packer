@@ -47,4 +47,12 @@
   docker_image:
     name: "{{ item }}"
     source: pull
-  loop: "{{ eksdistro }}"
+  loop: "{{ eksdistro.images }}"
+
+- name: Download Kubelet Binary
+  get_url:
+    url: "{{ item.url }}"
+    dest: "/usr/bin/{{ item.name }}"
+    mode: '0755'
+  loop: "{{ eksdistro.binaries }}"
+  
